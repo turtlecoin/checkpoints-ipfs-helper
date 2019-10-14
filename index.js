@@ -17,7 +17,7 @@ const util = require('util')
 
 const ipfsRepoPath = process.env.IPFS_REPO_PATH || path.join(os.homedir(), '/TurtleCoinIPFS')
 const checkpointsHostname = process.env.CHECKPOINTS_HOSTNAME || 'checkpoints.turtlecoin.dev'
-const testMinutes = process.env.TEST_MAXIMUM_MINUTES || 15
+const testMinutes = process.env.TEST_MAXIMUM_MINUTES || 10
 const args = process.argv.slice(2)
 
 class Logger {
