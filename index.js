@@ -17,6 +17,7 @@ const util = require('util')
 
 const ipfsRepoPath = process.env.IPFS_REPO_PATH || path.join(os.homedir(), '/TurtleCoinIPFS')
 const checkpointsHostname = process.env.CHECKPOINTS_HOSTNAME || 'checkpoints.turtlecoin.dev'
+const testMinutes = process.env.TEST_MAXIMUM_MINUTES || 15
 const args = process.argv.slice(2)
 
 class Logger {
@@ -182,4 +183,11 @@ class Logger {
 
   /* Tick right away so that we don't have to wait */
   timer.tick()
+
+  if (args.indexOf('test') !== -1) {
+    setTimeout(() => {
+      Logger.error(util.format('Could not pin %s within test period. Check your Internet connection and try again. Cancelling test...', lastIPFSHash))
+      process.exit(0)
+    }, 1000 * 60 * testMinutes)
+  }
 })()
