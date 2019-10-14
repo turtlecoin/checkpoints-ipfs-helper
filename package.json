@@ -1,0 +1,42 @@
+{
+  "name": "turtlecoin-checkpoints-ipfs-helper",
+  "version": "0.0.2",
+  "description": "TurtleCoin Checkpoints IPFS Daemon Helper",
+  "main": "index.js",
+  "bin": "./index.js",
+  "scripts": {
+    "test": "standard && node index.js test",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "TurtleCoin",
+    "Checkpoints",
+    "IPFS",
+    "Helper"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "bugs": {
+    "url": "https://github.com/turtlecoin/checkpoints-ipfs-helper/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/turtlecoin/checkpoints-ipfs-helper.git"
+  },
+  "homepage": "https://github.com/turtlecoin/checkpoints-ipfs-helper/#readme",
+  "engineStrict": true,
+  "author": "The TurtleCoin Developers",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "dotenv": "^8.1.0",
+    "ipfs": "^0.38.0",
+    "node-metronome": "^0.0.2",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7"
+  },
+  "devDependencies": {
+    "standard": "^14.3.1"
+  }
+}
