@@ -167,16 +167,16 @@ class Logger {
         lastIPFSHash = hash
         Logger.info(util.format('Attempting to pin locally: %s', hash))
         promises.push(node.pin.add(hash))
-      }
 
-      /* If we are testing, then we need to throw some output
-         to the screen while we wait for the hash to pin otherwise
-         most of the CI packages will timeout */
-      if (isTesting) {
-        const testPingTimer = new Metronome(1000 * 30, true)
-        testPingTimer.on('tick', () => {
-          Logger.debug(util.format('Waiting for pin of: %s', hash))
-        })
+        /* If we are testing, then we need to throw some output
+           to the screen while we wait for the hash to pin otherwise
+           most of the CI packages will timeout */
+        if (isTesting) {
+          const testPingTimer = new Metronome(1000 * 30, true)
+          testPingTimer.on('tick', () => {
+            Logger.debug(util.format('Waiting for pin of: %s', hash))
+          })
+        }
       }
 
       return Promise.all(promises)
