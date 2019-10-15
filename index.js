@@ -17,10 +17,15 @@ const util = require('util')
 
 const ipfsRepoPath = process.env.IPFS_REPO_PATH || path.join(os.homedir(), '/TurtleCoinIPFS')
 const checkpointsHostname = process.env.CHECKPOINTS_HOSTNAME || 'checkpoints.turtlecoin.dev'
-const testMinutes = process.env.TEST_MAXIMUM_MINUTES || 10
+const testMinutes = process.env.TEST_MAXIMUM_MINUTES || 15
 const args = process.argv.slice(2)
+const isTesting = (args.indexOf('test') !== -1)
 
 class Logger {
+  static debug (message) {
+    Logger.doLog(util.format('[DEBUG] %s', message).cyan)
+  }
+
   static doLog (message) {
     console.log(util.format('%s: %s', (new Date()).toUTCString(), message))
   }
@@ -39,7 +44,7 @@ class Logger {
 }
 
 (async function () {
-  if (args.indexOf('test') !== -1) Logger.warn('Starting test run...')
+  if (isTesting) Logger.debug('Starting test run...')
 
   Logger.info(util.format('Starting IPFS node in: %s', ipfsRepoPath))
 
@@ -156,6 +161,7 @@ class Logger {
     getLatestCheckpointsIPFSHash().then((hash) => {
       newHash = hash
       const promises = []
+
       if (hash !== lastIPFSHash) {
         Logger.info(util.format('Detected new checkpoints IPFS hash: %s', hash))
         lastIPFSHash = hash
@@ -163,12 +169,22 @@ class Logger {
         promises.push(node.pin.add(hash))
       }
 
+      /* If we are testing, then we need to throw some output
+         to the screen while we wait for the hash to pin otherwise
+         most of the CI packages will timeout */
+      if (isTesting) {
+        const testPingTimer = new Metronome(1000 * 30, true)
+        testPingTimer.on('tick', () => {
+          Logger.debug(util.format('Waiting for pin of: %s', hash))
+        })
+      }
+
       return Promise.all(promises)
     }).then((results) => {
       if (results.length === 1) {
         Logger.info(util.format('Pinned successfully: %s', newHash))
-        if (args.indexOf('test') !== -1) {
-          Logger.warn('Test completed. Stopping...')
+        if (isTesting) {
+          Logger.debug('Test completed. Stopping...')
           process.exit(0)
         }
       }
@@ -184,7 +200,7 @@ class Logger {
   /* Tick right away so that we don't have to wait */
   timer.tick()
 
-  if (args.indexOf('test') !== -1) {
+  if (isTesting) {
     setTimeout(() => {
       Logger.error(util.format('Could not pin %s within test period. Check your Internet connection and try again. Cancelling test...', lastIPFSHash))
       process.exit(0)
