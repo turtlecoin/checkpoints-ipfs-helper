@@ -10,11 +10,14 @@ require('colors')
 const DNS = require('dns')
 require('dotenv').config()
 const IPFS = require('ipfs')
+const IPFSHTTP = require('ipfs-http-client')
 const Metronome = require('node-metronome')
 const os = require('os')
 const path = require('path')
 const util = require('util')
 
+const ipfsHost = process.env.IPFS_HOST || false
+const ipfsPort = process.env.IPFS_PORT || 5001
 const ipfsRepoPath = process.env.IPFS_REPO_PATH || path.join(os.homedir(), '/TurtleCoinIPFS')
 const checkpointsHostname = process.env.CHECKPOINTS_HOSTNAME || 'checkpoints.turtlecoin.dev'
 const testMinutes = process.env.TEST_MAXIMUM_MINUTES || 15
@@ -46,29 +49,38 @@ class Logger {
 (async function () {
   if (isTesting) Logger.debug('Starting test run...')
 
-  Logger.info(util.format('Starting IPFS node in: %s', ipfsRepoPath))
-
   /* Create the IPFS node */
-  const node = await IPFS.create({
-    silent: true,
-    repo: path.resolve(ipfsRepoPath),
-    relay: {
-      enabled: true,
-      hop: {
+  var node
+
+  if (ipfsHost) {
+    Logger.info(util.format('Using IPFS node at %s:%s', ipfsHost, ipfsPort))
+    node = IPFSHTTP({ host: ipfsHost, port: ipfsPort, protocol: 'http' })
+  } else {
+    Logger.info(util.format('Starting IPFS node in: %s', ipfsRepoPath))
+
+    node = await IPFS.create({
+      silent: true,
+      repo: path.resolve(ipfsRepoPath),
+      relay: {
         enabled: true,
-        active: true
-      }
-    },
-    libp2p: {
-      config: {
-        dht: {
-          enabled: true
+        hop: {
+          enabled: true,
+          active: true
+        }
+      },
+      libp2p: {
+        config: {
+          dht: {
+            enabled: true
+          }
         }
       }
-    }
-  })
+    })
 
-  Logger.info('IPFS node started')
+    node.on('error', error => Logger.error(error.toString()))
+
+    Logger.info('IPFS node started')
+  }
 
   /* This is a helper method that creates a promises
      that does not resolve until we are connected to the swarm */
@@ -89,15 +101,15 @@ class Logger {
     })
   }
 
-  Logger.info('Waiting for IPFS node to connect to swarm...')
+  if (!ipfsHost) {
+    Logger.info('Waiting for IPFS node to connect to swarm...')
 
-  await isReady()
+    await isReady()
+
+    Logger.info('IPFS node connected to swarm...')
+  }
 
   var lastIPFSHash
-
-  node.on('error', error => Logger.error(error.toString()))
-
-  Logger.info('IPFS node connected to swarm...')
 
   /* Helper method to get the latest IPFS checkpoints hash from DNS */
   function getLatestCheckpointsIPFSHash () {

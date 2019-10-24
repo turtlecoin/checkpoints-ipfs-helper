@@ -32,6 +32,7 @@
     "colors": "^1.4.0",
     "dotenv": "^8.1.0",
     "ipfs": "^0.38.0",
+    "ipfs-http-client": "^39.0.2",
     "node-metronome": "^0.0.2",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7"
