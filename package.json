@@ -31,13 +31,13 @@
   "dependencies": {
     "colors": "^1.4.0",
     "dotenv": "^8.2.0",
-    "ipfs": "^0.42.0",
+    "ipfs": "^0.42.1",
     "ipfs-http-client": "^39.0.2",
     "node-metronome": "^0.0.2",
     "request": "^2.88.2",
-    "request-promise-native": "^1.0.8"
+    "request-promise-native": "^1.0.9"
   },
   "devDependencies": {
-    "standard": "^14.3.3"
+    "standard": "^14.3.4"
   }
 }
